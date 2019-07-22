@@ -1,24 +1,82 @@
+import 'package:dio/dio.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:rapatory_flutter/src/models/login/login_body.dart';
+import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
+import 'package:rxdart/rxdart.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
+final _publishSubjectLoading = PublishSubject<bool>();
+
 class _LoginScreenState extends State<LoginScreen> {
+  @override
+  void initState() {
+    _publishSubjectLoading.sink.add(false);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: ListView(
+        child: Stack(
           children: <Widget>[
-            HeaderImage(),
-            FormLogin(),
+            ListView(
+              children: <Widget>[
+                HeaderImage(),
+                FormLogin(),
+              ],
+            ),
+            _buildWidgetLoadingScreen(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildWidgetLoadingScreen() {
+    return StreamBuilder(
+      stream: _publishSubjectLoading.stream,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.hasData) {
+          bool isLoading = snapshot.data;
+          if (isLoading) {
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Color(0x90212121),
+                  ),
+                  Center(
+                    child: Container(
+                      width: 100.0,
+                      height: 100.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24.0),
+                        color: Colors.white,
+                      ),
+                      child: buildCircularProgressIndicator(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return Container();
+          }
+        } else {
+          return Container();
+        }
+      },
     );
   }
 }
@@ -29,7 +87,7 @@ class HeaderImage extends StatelessWidget {
     var mediaQuery = MediaQuery.of(context);
     return ClipPath(
       child: Container(
-        height: mediaQuery.size.height / 1.6,
+        height: mediaQuery.size.height / 1.7,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFF6F5F8), Color(0xFFE2E2E4)],
@@ -134,19 +192,24 @@ class BottomWaveClipper extends CustomClipper<Path> {
 }
 
 class FormLogin extends StatefulWidget {
+  TextEditingController _controllerEmail;
+  TextEditingController _controllerPassword;
+
   @override
   _FormLoginState createState() => _FormLoginState();
 }
 
 class _FormLoginState extends State<FormLogin> {
-  TextEditingController _controllerEmail;
-  TextEditingController _controllerPassword;
+  Dio _dio = Dio();
+  final _focusPassword = FocusNode();
+  bool _isEmailValid = true;
+  bool _isPasswordValid = true;
 
   @override
   void initState() {
     super.initState();
-    _controllerEmail = TextEditingController();
-    _controllerPassword = TextEditingController();
+    widget._controllerEmail = TextEditingController();
+    widget._controllerPassword = TextEditingController();
   }
 
   @override
@@ -156,22 +219,41 @@ class _FormLoginState extends State<FormLogin> {
       child: Column(
         children: <Widget>[
           TextField(
-            controller: _controllerEmail,
+            controller: widget._controllerEmail,
             decoration: InputDecoration(
               labelText: "Email",
+              errorText: _isEmailValid ? null : "Email can't be empty",
             ),
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
+            onSubmitted: (email) {
+              setState(() => _isEmailValid = email.isNotEmpty);
+              if (_isEmailValid) {
+                FocusScope.of(context).requestFocus(_focusPassword);
+              }
+            },
           ),
           SizedBox(height: 12.0),
           TextField(
-            controller: _controllerPassword,
+            controller: widget._controllerPassword,
+            focusNode: _focusPassword,
             decoration: InputDecoration(
               labelText: "Password",
+              errorText: _isPasswordValid ? null : "Password can't be empty",
             ),
             keyboardType: TextInputType.text,
             obscureText: true,
             textInputAction: TextInputAction.done,
+            onSubmitted: (password) {
+              String email = widget._controllerEmail.text;
+              setState(() {
+                _isEmailValid = email.isNotEmpty;
+                _isPasswordValid = password.isNotEmpty;
+              });
+              if (_isEmailValid && _isPasswordValid) {
+                _doLogin(email, password);
+              }
+            },
           ),
           SizedBox(height: 12.0),
           Container(
@@ -189,8 +271,15 @@ class _FormLoginState extends State<FormLogin> {
               padding: EdgeInsets.symmetric(vertical: 12.0),
               color: ColorAssets.primarySwatchColor,
               onPressed: () {
-                print('login');
-                // TODO: do something in here
+                String email = widget._controllerEmail.text;
+                String password = widget._controllerPassword.text;
+                setState(() {
+                  _isEmailValid = email.isNotEmpty;
+                  _isPasswordValid = password.isNotEmpty;
+                });
+                if (_isEmailValid && _isPasswordValid) {
+                  _doLogin(email, password);
+                }
               },
             ),
           ),
@@ -223,5 +312,36 @@ class _FormLoginState extends State<FormLogin> {
         ],
       ),
     );
+  }
+
+  void _doLogin(String email, String password) async {
+    _publishSubjectLoading.sink.add(true);
+    var loginBody = LoginBody(email: email, password: password);
+    var response = await _dio.post(
+      "http://lab.anc.nusa.net.id:8010/api/v1/rapatory",
+      data: loginBody.toJson(),
+      options: Options(headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      }),
+    );
+    if (response.statusCode == 200) {
+      widget._controllerEmail.clear();
+      widget._controllerPassword.clear();
+      _publishSubjectLoading.sink.add(false);
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Login success'),
+        ),
+      );
+    } else {
+      widget._controllerPassword.clear();
+      _publishSubjectLoading.sink.add(false);
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Login failed"),
+        ),
+      );
+    }
   }
 }

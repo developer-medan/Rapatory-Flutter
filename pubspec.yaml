@@ -28,6 +28,9 @@ dependencies:
   # Vector design and runtime animation for Flutter.
   flare_flutter: ^1.5.4
 
+  # ReactiveX for Dart
+  rxdart: ^0.22.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
