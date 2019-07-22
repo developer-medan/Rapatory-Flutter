@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
 
+import 'ui/dashboard/dashboard_screen.dart';
 import 'ui/login/login_screen.dart';
+import 'ui/splash/splash_screen.dart';
+import 'utils/utils.dart';
 
 class App extends StatelessWidget {
   @override
@@ -12,7 +15,15 @@ class App extends StatelessWidget {
         primaryColor: ColorAssets.primarySwatchColor,
         accentColor: ColorAssets.accentColor,
       ),
-      home: LoginScreen(),
+      home: SplashScreen(),
+      routes: {
+        navigatorLogin: (context) {
+          return LoginScreen();
+        },
+        navigatorDashboard: (context) {
+          return DashboardScreen();
+        }
+      },
     );
   }
 }

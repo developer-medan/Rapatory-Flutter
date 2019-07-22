@@ -5,6 +5,7 @@ import 'package:rapatory_flutter/src/models/login/login_body.dart';
 import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -18,6 +19,12 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     _publishSubjectLoading.sink.add(false);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _publishSubjectLoading.close();
+    super.dispose();
   }
 
   @override
@@ -186,31 +193,21 @@ class BottomWaveClipper extends CustomClipper<Path> {
   }
 
   @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) {
-    return false;
-  }
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
 class FormLogin extends StatefulWidget {
-  TextEditingController _controllerEmail;
-  TextEditingController _controllerPassword;
-
   @override
   _FormLoginState createState() => _FormLoginState();
 }
 
 class _FormLoginState extends State<FormLogin> {
   Dio _dio = Dio();
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerPassword = TextEditingController();
   final _focusPassword = FocusNode();
   bool _isEmailValid = true;
   bool _isPasswordValid = true;
-
-  @override
-  void initState() {
-    super.initState();
-    widget._controllerEmail = TextEditingController();
-    widget._controllerPassword = TextEditingController();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +216,7 @@ class _FormLoginState extends State<FormLogin> {
       child: Column(
         children: <Widget>[
           TextField(
-            controller: widget._controllerEmail,
+            controller: _controllerEmail,
             decoration: InputDecoration(
               labelText: "Email",
               errorText: _isEmailValid ? null : "Email can't be empty",
@@ -235,7 +232,7 @@ class _FormLoginState extends State<FormLogin> {
           ),
           SizedBox(height: 12.0),
           TextField(
-            controller: widget._controllerPassword,
+            controller: _controllerPassword,
             focusNode: _focusPassword,
             decoration: InputDecoration(
               labelText: "Password",
@@ -245,7 +242,7 @@ class _FormLoginState extends State<FormLogin> {
             obscureText: true,
             textInputAction: TextInputAction.done,
             onSubmitted: (password) {
-              String email = widget._controllerEmail.text;
+              String email = _controllerEmail.text;
               setState(() {
                 _isEmailValid = email.isNotEmpty;
                 _isPasswordValid = password.isNotEmpty;
@@ -271,8 +268,8 @@ class _FormLoginState extends State<FormLogin> {
               padding: EdgeInsets.symmetric(vertical: 12.0),
               color: ColorAssets.primarySwatchColor,
               onPressed: () {
-                String email = widget._controllerEmail.text;
-                String password = widget._controllerPassword.text;
+                String email = _controllerEmail.text;
+                String password = _controllerPassword.text;
                 setState(() {
                   _isEmailValid = email.isNotEmpty;
                   _isPasswordValid = password.isNotEmpty;
@@ -326,8 +323,12 @@ class _FormLoginState extends State<FormLogin> {
       }),
     );
     if (response.statusCode == 200) {
-      widget._controllerEmail.clear();
-      widget._controllerPassword.clear();
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      await sharedPreferences.setBool(keyIsLogin, true);
+      await sharedPreferences.setString(keyEmail, email);
+      _controllerEmail.clear();
+      _controllerPassword.clear();
       _publishSubjectLoading.sink.add(false);
       Scaffold.of(context).showSnackBar(
         SnackBar(
@@ -335,7 +336,7 @@ class _FormLoginState extends State<FormLogin> {
         ),
       );
     } else {
-      widget._controllerPassword.clear();
+      _controllerPassword.clear();
       _publishSubjectLoading.sink.add(false);
       Scaffold.of(context).showSnackBar(
         SnackBar(
