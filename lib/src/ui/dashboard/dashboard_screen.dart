@@ -12,11 +12,230 @@ class DashboardScreen extends StatelessWidget {
         top: false,
         child: Stack(
           children: <Widget>[
+            Container(
+              color: Color(0xFFF5F5F5),
+            ),
             WaveHeader(),
             _buildWidgetPhotoProfile(paddingTopScreen),
+            _buildWidgetPersonalData(paddingTopScreen, context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildWidgetPersonalData(
+      double paddingTopScreen, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          SizedBox(
+            height: 170.0 + paddingTopScreen + 35.0,
+          ),
+          Text(
+            'Angelica Agnesia',
+            style: Theme.of(context).textTheme.headline,
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            'Programmer',
+            style: Theme.of(context).textTheme.subhead,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Wrap(
+                direction: Axis.vertical,
+                children: <Widget>[
+                  Text(
+                    'Employee ID',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  Text('0201708'),
+                ],
+              ),
+              Wrap(
+                direction: Axis.vertical,
+                children: <Widget>[
+                  Text(
+                    'Manager',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  Text('David Lim'),
+                ],
+              ),
+            ],
+          ),
+          Expanded(
+            child: _buildWidgetMenu(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWidgetMenu() {
+    return ListView(
+      shrinkWrap: true,
+      children: <Widget>[
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  // TODO: do something in here
+                  print('tap menu check in / out');
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 128.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(16.0),
+                    color: Colors.white,
+                  ),
+                  child: Center(
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      direction: Axis.vertical,
+                      children: <Widget>[
+                        Icon(
+                          Icons.access_time,
+                          color: ColorAssets.primarySwatchColor,
+                          size: 32.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text('Check In / Out'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 8.0),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  // TODO: do something in here
+                  print('tap menu attendance');
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 128.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(16.0),
+                    color: Colors.white,
+                  ),
+                  child: Center(
+                    child: Wrap(
+                      direction: Axis.vertical,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.date_range,
+                          color: ColorAssets.primarySwatchColor,
+                          size: 32.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text('Attendance'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8.0),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  // TODO: do something in here
+                  print('tap about app');
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 128.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(16.0),
+                    color: Colors.white,
+                  ),
+                  child: Center(
+                    child: Wrap(
+                      direction: Axis.vertical,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.info_outline,
+                          color: ColorAssets.primarySwatchColor,
+                          size: 32.0,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: Text('About App'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 8.0),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  // TODO: do something in here
+                  print('tap logout');
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 128.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(16.0),
+                    color: Colors.white,
+                  ),
+                  child: Center(
+                    child: Wrap(
+                      direction: Axis.vertical,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.exit_to_app,
+                          color: ColorAssets.primarySwatchColor,
+                          size: 32.0,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: Text('Logout'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        )
+      ],
     );
   }
 
