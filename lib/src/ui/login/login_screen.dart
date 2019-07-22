@@ -71,7 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(24.0),
                         color: Colors.white,
                       ),
-                      child: buildCircularProgressIndicator(),
+                      child: Padding(
+                        padding: const EdgeInsets.all(36.0),
+                        child: buildCircularProgressIndicator(),
+                      ),
                     ),
                   ),
                 ],
@@ -330,11 +333,7 @@ class _FormLoginState extends State<FormLogin> {
       _controllerEmail.clear();
       _controllerPassword.clear();
       _publishSubjectLoading.sink.add(false);
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Login success'),
-        ),
-      );
+      Navigator.of(context).pushReplacementNamed(navigatorDashboard);
     } else {
       _controllerPassword.clear();
       _publishSubjectLoading.sink.add(false);
