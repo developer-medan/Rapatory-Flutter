@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:rapatory_flutter/src/models/login/login_body.dart';
-import 'package:rapatory_flutter/src/models/profile/profile_response.dart';
 import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
 import 'package:rxdart/rxdart.dart';
@@ -13,11 +12,12 @@ class LoginScreen extends StatefulWidget {
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-final _publishSubjectLoading = PublishSubject<bool>();
+PublishSubject<bool> _publishSubjectLoading;
 
 class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
+    _publishSubjectLoading = PublishSubject<bool>();
     _publishSubjectLoading.sink.add(false);
     super.initState();
   }
@@ -316,33 +316,43 @@ class _FormLoginState extends State<FormLogin> {
   }
 
   void _doLogin(String email, String password) async {
-    _publishSubjectLoading.sink.add(true);
-    var loginBody = LoginBody(email: email, password: password);
-    var response = await _dio.post(
-      "http://lab.anc.nusa.net.id:8010/api/v1/rapatory",
-      data: loginBody.toJson(),
-      options: Options(headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      }),
-    );
-    if (response.statusCode == 200) {
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      await sharedPreferences.setBool(keyIsLogin, true);
-      await sharedPreferences.setString(keyEmail, email);
-      _controllerEmail.clear();
-      _controllerPassword.clear();
-      _publishSubjectLoading.sink.add(false);
-      Navigator.of(context).pushReplacementNamed(navigatorDashboard);
-    } else {
-      _controllerPassword.clear();
-      _publishSubjectLoading.sink.add(false);
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Login failed"),
+    try {
+      _publishSubjectLoading.sink.add(true);
+      var loginBody = LoginBody(email: email, password: password);
+      var response = await _dio.post(
+        "http://lab.anc.nusa.net.id:8010/api/v1/rapatory",
+        data: loginBody.toJson(),
+        options: Options(
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
         ),
       );
+      if (response.statusCode == 200) {
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        await sharedPreferences.setBool(keyIsLogin, true);
+        await sharedPreferences.setString(keyEmail, email);
+        _controllerEmail.clear();
+        _controllerPassword.clear();
+        _publishSubjectLoading.sink.add(false);
+        Navigator.of(context).pushReplacementNamed(navigatorDashboard);
+      } else {
+        _showErrorSnackBar();
+      }
+    } on DioError catch (e) {
+      _showErrorSnackBar();
     }
+  }
+
+  void _showErrorSnackBar() {
+    _controllerPassword.clear();
+    _publishSubjectLoading.sink.add(false);
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Login failed"),
+      ),
+    );
   }
 }

@@ -116,17 +116,21 @@ class DashboardScreen extends StatelessWidget {
     var sharedPreferences = await SharedPreferences.getInstance();
     var email = sharedPreferences.getString(keyEmail) ?? '';
     var dio = Dio();
-    var response = await dio.get(
-      'http://lab.anc.nusa.net.id:8010/api/v1/rapatory/profile?email=$email',
-      options: Options(headers: {
-        'Accept': 'Application/json',
-        'Content-Type': 'Application/json',
-      }),
-    );
-    if (response.statusCode == 200) {
-      var profileResponse = ProfileResponse.fromJson(response.data);
-      return profileResponse;
-    } else {
+    try {
+      var response = await dio.get(
+        'http://lab.anc.nusa.net.id:8010/api/v1/rapatory/profile?email=$email',
+        options: Options(headers: {
+          'Accept': 'Application/json',
+          'Content-Type': 'Application/json',
+        }),
+      );
+      if (response.statusCode == 200) {
+        var profileResponse = ProfileResponse.fromJson(response.data);
+        return profileResponse;
+      } else {
+        return null;
+      }
+    } on DioError catch (e) {
       return null;
     }
   }
@@ -307,9 +311,12 @@ class DashboardScreen extends StatelessWidget {
             SizedBox(width: 8.0),
             Expanded(
               child: InkWell(
-                onTap: () {
-                  // TODO: do something in here
-                  print('tap logout');
+                onTap: () async {
+                  SharedPreferences sharedPreferences =
+                      await SharedPreferences.getInstance();
+                  await sharedPreferences.clear();
+                  Navigator.pushReplacementNamed(
+                      _scaffoldKey.currentContext, navigatorLogin);
                 },
                 child: Container(
                   width: double.infinity,
