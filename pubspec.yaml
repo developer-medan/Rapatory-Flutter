@@ -34,8 +34,9 @@ dependencies:
   # Flutter plugin for getting commonly used locations on the Android & iOS.
   path_provider: ^1.1.0
 
-  # Get the version name, version code, platform, OS version and app ID.
-  get_version: ^0.1.0
+  # Flutter plugin for querying information about the application package, such as
+  # CFBundleVersion on iOS or versionCode on Android.
+  package_info: ^0.4.0+5
 
 dev_dependencies:
   flutter_test:

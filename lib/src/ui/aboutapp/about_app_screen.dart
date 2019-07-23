@@ -1,7 +1,7 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_version/get_version.dart';
+import 'package:package_info/package_info.dart';
 
 class AboutAppScreen extends StatefulWidget {
   @override
@@ -123,7 +123,8 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
 
   _getVersionApp() async {
     try {
-      _versionName = await GetVersion.projectVersion;
+      var packageInfo = await PackageInfo.fromPlatform();
+      _versionName = packageInfo.version;
       setState(() {});
     } on PlatformException {
       _versionName = "1.0.0";
