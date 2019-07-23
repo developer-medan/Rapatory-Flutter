@@ -13,6 +13,7 @@ class DashboardScreen extends StatelessWidget {
   String _photoProfile = '';
   String _employeeId = '';
   String _manager = '';
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +21,7 @@ class DashboardScreen extends StatelessWidget {
     _paddingTopScreen = mediaQuery.padding.top;
 
     return Scaffold(
+      key: _scaffoldKey,
       body: SafeArea(
         top: false,
         child: Stack(
@@ -271,8 +273,8 @@ class DashboardScreen extends StatelessWidget {
             Expanded(
               child: InkWell(
                 onTap: () {
-                  // TODO: do something in here
-                  print('tap about app');
+                  Navigator.of(_scaffoldKey.currentContext)
+                      .pushNamed(navigatorAboutApp);
                 },
                 child: Container(
                   width: double.infinity,

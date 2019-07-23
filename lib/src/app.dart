@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
 
+import 'ui/aboutapp/about_app_screen.dart';
 import 'ui/dashboard/dashboard_screen.dart';
 import 'ui/login/login_screen.dart';
 import 'ui/splash/splash_screen.dart';
@@ -22,6 +23,9 @@ class App extends StatelessWidget {
         },
         navigatorDashboard: (context) {
           return DashboardScreen();
+        },
+        navigatorAboutApp: (context) {
+          return AboutAppScreen();
         }
       },
     );
