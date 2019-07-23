@@ -100,14 +100,20 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Container(
-                  width: 48.0,
-                  height: 48.0,
+                  width: 42.0,
+                  height: 42.0,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Color(0xFF757575), blurRadius: 5.0),
+                    ],
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF757575),
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
