@@ -1,11 +1,23 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:rapatory_flutter/src/models/profile/profile_response.dart';
+import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreen extends StatelessWidget {
+  var _paddingTopScreen = 0.0;
+  String _name = '';
+  String _position = '';
+  String _photoProfile = '';
+  String _employeeId = '';
+  String _manager = '';
+
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context);
-    var paddingTopScreen = mediaQuery.padding.top;
+    _paddingTopScreen = mediaQuery.padding.top;
 
     return Scaffold(
       body: SafeArea(
@@ -16,31 +28,123 @@ class DashboardScreen extends StatelessWidget {
               color: Color(0xFFF5F5F5),
             ),
             WaveHeader(),
-            _buildWidgetPhotoProfile(paddingTopScreen),
-            _buildWidgetPersonalData(paddingTopScreen, context),
+            _buildWidgetLoadData(),
+            /*_buildWidgetPhotoProfile(paddingTopScreen),
+            _buildWidgetPersonalData(paddingTopScreen, context),*/
           ],
         ),
       ),
     );
   }
 
-  Widget _buildWidgetPersonalData(
-      double paddingTopScreen, BuildContext context) {
+  Widget _buildWidgetLoadData() {
+    return FutureBuilder(
+      future: _doLoadPersonalData(),
+      builder: (BuildContext context, AsyncSnapshot<ProfileResponse> snapshot) {
+        if (snapshot.hasData) {
+          var profileResponse = snapshot.data;
+          _name = profileResponse.name;
+          _position = profileResponse.position;
+          _photoProfile = profileResponse.photoProfile;
+          _employeeId = profileResponse.employeeId;
+          _manager = profileResponse.manager;
+          return Stack(
+            children: <Widget>[
+              _buildWidgetPhotoProfile(),
+              _buildWidgetPersonalData(context)
+            ],
+          );
+        } else if (snapshot.hasError) {
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Error'),
+                  content: Text('Error occured.'),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Exit'),
+                      onPressed: () {
+                        SystemChannels.platform
+                            .invokeMethod('SystemNavigator.pop');
+                      },
+                    ),
+                  ],
+                );
+              });
+          return Container();
+        }
+        return _buildWidgetLoadingScreen();
+      },
+    );
+  }
+
+  Widget _buildWidgetLoadingScreen() {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      child: Stack(
+        children: <Widget>[
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Color(0x90212121),
+          ),
+          Center(
+            child: Container(
+              width: 100.0,
+              height: 100.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24.0),
+                color: Colors.white,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(36.0),
+                child: buildCircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<ProfileResponse> _doLoadPersonalData() async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var email = sharedPreferences.getString(keyEmail) ?? '';
+    var dio = Dio();
+    var response = await dio.get(
+      'http://lab.anc.nusa.net.id:8010/api/v1/rapatory/profile?email=$email',
+      options: Options(headers: {
+        'Accept': 'Application/json',
+        'Content-Type': 'Application/json',
+      }),
+    );
+    if (response.statusCode == 200) {
+      var profileResponse = ProfileResponse.fromJson(response.data);
+      return profileResponse;
+    } else {
+      return null;
+    }
+  }
+
+  Widget _buildWidgetPersonalData(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           SizedBox(
-            height: 170.0 + paddingTopScreen + 35.0,
+            height: 170.0 + _paddingTopScreen + 35.0,
           ),
           Text(
-            'Angelica Agnesia',
+            _name,
             style: Theme.of(context).textTheme.headline,
             textAlign: TextAlign.center,
           ),
           Text(
-            'Programmer',
+            _position,
             style: Theme.of(context).textTheme.subhead,
             textAlign: TextAlign.center,
           ),
@@ -57,7 +161,7 @@ class DashboardScreen extends StatelessWidget {
                       color: Colors.grey[500],
                     ),
                   ),
-                  Text('0201708'),
+                  Text(_employeeId),
                 ],
               ),
               Wrap(
@@ -69,7 +173,7 @@ class DashboardScreen extends StatelessWidget {
                       color: Colors.grey[500],
                     ),
                   ),
-                  Text('David Lim'),
+                  Text(_manager),
                 ],
               ),
             ],
@@ -239,11 +343,11 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWidgetPhotoProfile(double paddingTopScreen) {
+  Widget _buildWidgetPhotoProfile() {
     return Container(
       width: double.infinity,
       child: Padding(
-        padding: EdgeInsets.only(top: 70.0 + paddingTopScreen),
+        padding: EdgeInsets.only(top: 70.0 + _paddingTopScreen),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -254,8 +358,7 @@ class DashboardScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image:
-                      AssetImage("assets/images/img_sample_photo_profile.jpg"),
+                  image: NetworkImage(_photoProfile),
                 ),
               ),
             ),

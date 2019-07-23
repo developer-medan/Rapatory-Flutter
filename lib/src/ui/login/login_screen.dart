@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:rapatory_flutter/src/models/login/login_body.dart';
+import 'package:rapatory_flutter/src/models/profile/profile_response.dart';
 import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
 import 'package:rxdart/rxdart.dart';
