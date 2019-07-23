@@ -1,7 +1,7 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
-import 'package:get_version/get_version.dart';
 import 'package:flutter/services.dart';
+import 'package:get_version/get_version.dart';
 
 class AboutAppScreen extends StatefulWidget {
   @override
@@ -85,12 +85,36 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(mediaQuery.padding.bottom + ((mediaQuery.padding.bottom == 0.0) ? 16.0 : 0.0)),
+              padding: EdgeInsets.all(mediaQuery.padding.bottom +
+                  ((mediaQuery.padding.bottom == 0.0) ? 16.0 : 0.0)),
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Text('v$_versionName'),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.only(
+                left: 16.0,
+                top: mediaQuery.padding.top + 16,
+              ),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Container(
+                  width: 48.0,
+                  height: 48.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
