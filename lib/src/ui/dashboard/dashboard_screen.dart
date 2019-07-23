@@ -202,8 +202,8 @@ class DashboardScreen extends StatelessWidget {
             Expanded(
               child: InkWell(
                 onTap: () {
-                  // TODO: do something in here
-                  print('tap menu check in / out');
+                  Navigator.pushNamed(
+                      _scaffoldKey.currentContext, navigatorCheckInOut);
                 },
                 child: Container(
                   width: double.infinity,
@@ -225,7 +225,7 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
-                          child: Text('Check In / Out'),
+                          child: Text('Clock In / Out'),
                         ),
                       ],
                     ),

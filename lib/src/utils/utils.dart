@@ -9,6 +9,7 @@ const keyEmail = "email";
 const navigatorLogin = "/login";
 const navigatorDashboard = "/dashboard";
 const navigatorAboutApp = "/about_app";
+const navigatorCheckInOut = "/check_in_out";
 
 Widget buildCircularProgressIndicator() {
   if (Platform.isIOS) {
