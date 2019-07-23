@@ -36,6 +36,12 @@ class _CheckInOutScreenState extends State<CheckInOutScreen> {
   }
 
   @override
+  void dispose() {
+    _locationSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context);
 
@@ -45,6 +51,32 @@ class _CheckInOutScreenState extends State<CheckInOutScreen> {
           children: <Widget>[
             _buildWidgetGoogleMaps(mediaQuery),
             _buildWidgetPanelBottom(mediaQuery, context),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16.0, top: 16.0),
+                child: Container(
+                  width: 42.0,
+                  height: 42.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black, blurRadius: 5.0),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF757575),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
