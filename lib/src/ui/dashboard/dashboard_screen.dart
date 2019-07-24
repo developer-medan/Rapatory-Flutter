@@ -31,8 +31,6 @@ class DashboardScreen extends StatelessWidget {
             ),
             WaveHeader(),
             _buildWidgetLoadData(),
-            /*_buildWidgetPhotoProfile(paddingTopScreen),
-            _buildWidgetPersonalData(paddingTopScreen, context),*/
           ],
         ),
       ),
@@ -131,6 +129,7 @@ class DashboardScreen extends StatelessWidget {
         return null;
       }
     } on DioError catch (e) {
+      print(e);
       return null;
     }
   }
