@@ -6,6 +6,8 @@
     <string>Detect your location</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Send your location when Clock In and Out</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Verification your identity when Clock In and Out</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

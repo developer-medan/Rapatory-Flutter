@@ -45,6 +45,10 @@ dependencies:
   # Provides settings for optimizing performance or battery.
   location: ^2.3.5
 
+  # Flutter plugin for Android and iOS device authentication sensors such
+  # as Fingerprint Reader and Touch ID.
+  local_auth: ^0.5.2+4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
