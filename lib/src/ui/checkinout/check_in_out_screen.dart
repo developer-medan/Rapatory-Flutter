@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:location/location.dart';
+import 'package:rapatory_flutter/src/models/checkinout/check_in_out_body.dart';
+import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckInOutScreen extends StatefulWidget {
   @override
@@ -236,22 +240,48 @@ class _WidgetPanelBottomMenuState extends State<WidgetPanelBottomMenu> {
     }
     if (!mounted) return;
     if (authenticated) {
-      // TODO: insert clock in / out to API
-
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          var strTime = DateFormat('HH:mm').format(DateTime.now());
-          var strLatitude = _currentLocation.latitude.toStringAsFixed(7);
-          var strLongitude = _currentLocation.longitude.toStringAsFixed(7);
-          return DialogFingerprintSuccess(
-            title: type == 1 ? 'Clock In Success' : 'Clock Out Success',
-            time: strTime,
-            latitude: strLatitude,
-            longitude: strLongitude,
-          );
-        },
+      var sharedPreferences = await SharedPreferences.getInstance();
+      var email = sharedPreferences.getString(keyEmail) ?? '';
+      var dio = Dio();
+      var checkInOutBody = CheckInOutBody(
+        email: email,
+        time: DateTime.now().millisecondsSinceEpoch,
+        latitude: _currentLocation.latitude,
+        longitude: _currentLocation.longitude,
+        typeCheck: type,
       );
+      var bodyRequest = checkInOutBody.toJson();
+      var response = await dio.post(
+        'http://lab.anc.nusa.net.id:8010/api/v1/rapatory/check',
+        data: bodyRequest,
+        options: Options(
+          headers: {
+            'Accept': 'Application/json',
+            'Content-Type': 'Application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            var strTime = DateFormat('HH:mm').format(DateTime.now());
+            var strLatitude = _currentLocation.latitude.toStringAsFixed(7);
+            var strLongitude = _currentLocation.longitude.toStringAsFixed(7);
+            return DialogFingerprintSuccess(
+              title: type == 1 ? 'Clock In Success' : 'Clock Out Success',
+              time: strTime,
+              latitude: strLatitude,
+              longitude: strLongitude,
+            );
+          },
+        );
+      } else {
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(type == 1 ? 'Clock In Failed' : 'Clock Out Failed'),
+        ));
+      }
     }
   }
 
