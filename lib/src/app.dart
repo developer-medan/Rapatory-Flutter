@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
 
 import 'ui/aboutapp/about_app_screen.dart';
+import 'ui/attendance/attendance_screen.dart';
 import 'ui/checkinout/check_in_out_screen.dart';
 import 'ui/dashboard/dashboard_screen.dart';
 import 'ui/login/login_screen.dart';
@@ -30,6 +31,9 @@ class App extends StatelessWidget {
         },
         navigatorCheckInOut: (context) {
           return CheckInOutScreen();
+        },
+        navigatorAttendance: (context) {
+          return AttendanceScreen();
         }
       },
     );

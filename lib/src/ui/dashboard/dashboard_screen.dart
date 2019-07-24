@@ -236,8 +236,8 @@ class DashboardScreen extends StatelessWidget {
             Expanded(
               child: InkWell(
                 onTap: () {
-                  // TODO: do something in here
-                  print('tap menu attendance');
+                  Navigator.pushNamed(
+                      _scaffoldKey.currentContext, navigatorAttendance);
                 },
                 child: Container(
                   width: double.infinity,
