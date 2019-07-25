@@ -1,51 +1,49 @@
-import 'dart:convert';
-import 'dart:developer';
-
-import 'package:rapatory_flutter/src/model/model_signup_screen.dart';
+import 'package:rapatory_flutter/src/model/view_model_signup.dart';
 import 'package:rapatory_flutter/src/model/network.dart';
-import 'package:http/http.dart' as http;
+import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/src/view/view_signup.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PresenterSignUp {
+
   set view(ViewSignUp viewSignUp) {}
 
-  void doSignUp() {}
+  void doSignUp(ViewSignUp viewSignUp, ViewModelSignUp viewModelSignUp) {}
+
 }
 
-class BasicPresenterSignUP implements PresenterSignUp {
-  ModelSignUp _model;
+class BasicPresenterSignUp implements PresenterSignUp {
+  ViewModelSignUp _viewModelSignUp;
   ViewSignUp _viewSignUp;
   NetworkProvider _networkProvider;
-  PublishSubject<bool> _publishSubjectLoading;
 
   final String TAG = "BasicPresenterSignUp";
 
-  BasicPresenterSignUP() {
-    if (this._model == null && this._networkProvider == null) {
-      this._model = ModelSignUp();
-      _publishSubjectLoading = PublishSubject<bool>();
-      _publishSubjectLoading.sink.add(false);
-      this._networkProvider = NetworkProvider(this._model);
-    }
+  BasicPresenterSignUp() {
+    this._viewModelSignUp = ViewModelSignUp();
+    this._networkProvider = NetworkProvider();
   }
 
   @override
   set view(ViewSignUp viewSignUp) {
     this._viewSignUp = viewSignUp;
-    this._viewSignUp.refreshData(this._model, this._publishSubjectLoading);
+    this._viewSignUp.refreshData(this._viewModelSignUp);
   }
 
   @override
-  void doSignUp() {
-    _publishSubjectLoading.sink.add(true);
-    Future<bool> future = this._networkProvider.postData();
-    future.then((bool isSuccessRegistered) {
-      _publishSubjectLoading.add(false);
+  void doSignUp(ViewSignUp viewSignUp, ViewModelSignUp viewModelSignUp) {
+    this._viewSignUp = viewSignUp;
+    this._viewModelSignUp = viewModelSignUp;
+
+    Future<bool> future = this._networkProvider.postData(this._viewModelSignUp);
+    future.then((bool isSuccessRegistered) async {
       if (isSuccessRegistered) {
-        print("Register Success");
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        await sharedPreferences.setBool(keyIsLogin, true);
+        await sharedPreferences.setString(keyEmail, _viewModelSignUp.usernameTextEditor.text);
+        _viewSignUp.signUpSuccess();
       } else {
-        //showSnackbar
         print("Register Failed");
       }
     }).catchError((var error) {

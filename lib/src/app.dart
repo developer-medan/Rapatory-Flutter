@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:rapatory_flutter/values/color_assets.dart';
 
+import 'presenter/presenter_signup.dart';
 import 'ui/aboutapp/about_app_screen.dart';
 import 'ui/attendance/attendance_screen.dart';
 import 'ui/checkinout/check_in_out_screen.dart';
 import 'ui/dashboard/dashboard_screen.dart';
 import 'ui/login/login_screen.dart';
+import 'ui/signup/signup_screen.dart';
 import 'ui/splash/splash_screen.dart';
 import 'utils/utils.dart';
 
@@ -34,6 +36,9 @@ class App extends StatelessWidget {
         },
         navigatorAttendance: (context) {
           return AttendanceScreen();
+        },
+        navigatorRegister: (context) {
+          return SignUpScreen(BasicPresenterSignUp(), title: 'Rapatory');
         }
       },
     );

@@ -2,37 +2,34 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rapatory_flutter/src/model/model_signup_screen.dart';
+import 'package:rapatory_flutter/src/model/view_model_signup.dart';
 import 'package:rapatory_flutter/src/presenter/presenter_signup.dart';
+import 'package:rapatory_flutter/src/utils/utils.dart';
 import 'package:rapatory_flutter/src/view/view_signup.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SignUpScreen extends StatefulWidget {
   final String title;
-  final PresenterSignUp presenterSignUp;
+  final PresenterSignUp _presenterSignUp;
 
-  SignUpScreen(this.presenterSignUp, {this.title, Key key}) : super(key: key);
+  SignUpScreen(this._presenterSignUp, {this.title, Key key}) : super(key: key);
 
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen>
-    with SingleTickerProviderStateMixin
-    implements ViewSignUp {
-  ModelSignUp _model;
-  PublishSubject<bool> _publishSubjectLoading;
+class _SignUpScreenState extends State<SignUpScreen> implements ViewSignUp{
+
+  ViewModelSignUp _viewModelSignUp;
 
   @override
   void initState() {
     super.initState();
-    this.widget.presenterSignUp.view = this;
+    this.widget._presenterSignUp.view = this;
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    _publishSubjectLoading.close();
     super.dispose();
   }
 
@@ -45,8 +42,8 @@ class _SignUpScreenState extends State<SignUpScreen>
         child: Column(
           children: <Widget>[
             HeaderTitle(widget.title),
-            FormSignUp(this._model, widget.presenterSignUp),
-            _buildWidgetLoadingScreen(),
+            FormSignUp(this.widget._presenterSignUp, this._viewModelSignUp, this),
+            //_buildWidgetLoadingScreen(),
           ],
         ),
       ),
@@ -54,58 +51,62 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   @override
-  void refreshData(
-      ModelSignUp model, PublishSubject<bool> publishSubjectLoading) {
+  void refreshData(ViewModelSignUp viewModelSignUp) {
     setState(() {
-      this._model = model;
-      this._publishSubjectLoading = publishSubjectLoading;
+      this._viewModelSignUp = viewModelSignUp;
     });
   }
 
-  Widget _buildWidgetLoadingScreen() {
-    return StreamBuilder(
-      stream: _publishSubjectLoading.stream,
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-        if (snapshot.hasData) {
-          bool isLoading = snapshot.data;
-          if (isLoading) {
-            return Container(
-              width: double.infinity,
-              height: double.infinity,
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Color(0x90212121),
-                  ),
-                  Center(
-                    child: Container(
-                      width: 100.0,
-                      height: 100.0,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20.0),
-                          color: Colors.white),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Platform.isIOS
-                            ? CupertinoActivityIndicator()
-                            : CircularProgressIndicator,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            );
-          } else {
-            return Container();
-          }
-        } else {
-          return Container();
-        }
-      },
-    );
+  @override
+  void signUpSuccess() {
+    Navigator.pushNamed(context, navigatorDashboard);
   }
+
+//  Widget _buildWidgetLoadingScreen() {
+//    return StreamBuilder(
+//      stream: _publishSubjectLoading.stream,
+//      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+//        if (snapshot.hasData) {
+//          bool isLoading = snapshot.data;
+//          if (isLoading) {
+//            return Container(
+//              width: double.infinity,
+//              height: double.infinity,
+//              child: Stack(
+//                children: <Widget>[
+//                  Container(
+//                    width: double.infinity,
+//                    height: double.infinity,
+//                    color: Color(0x90212121),
+//                  ),
+//                  Center(
+//                    child: Container(
+//                      width: 100.0,
+//                      height: 100.0,
+//                      decoration: BoxDecoration(
+//                          borderRadius: BorderRadius.circular(20.0),
+//                          color: Colors.white),
+//                      child: Padding(
+//                        padding: const EdgeInsets.all(24.0),
+//                        child: Platform.isIOS
+//                            ? CupertinoActivityIndicator()
+//                            : CircularProgressIndicator,
+//                      ),
+//                    ),
+//                  )
+//                ],
+//              ),
+//            );
+//          } else {
+//            return Container();
+//          }
+//        } else {
+//          return Container();
+//        }
+//      },
+//    );
+//  }
+
 }
 
 class HeaderTitle extends StatelessWidget {
@@ -187,10 +188,11 @@ class WidgetTextTitle extends StatelessWidget {
 }
 
 class FormSignUp extends StatefulWidget {
-  final ModelSignUp _model;
   final PresenterSignUp _presenterSignUp;
+  final ViewModelSignUp _viewModelSignUp;
+  final ViewSignUp _viewSignUp;
 
-  FormSignUp(this._model, this._presenterSignUp);
+  FormSignUp(this._presenterSignUp, this._viewModelSignUp, this._viewSignUp);
 
   @override
   _FormSignUpState createState() => _FormSignUpState();
@@ -203,6 +205,7 @@ class _FormSignUpState extends State<FormSignUp> {
   bool _isManagerValid = true;
   bool _isUsernameValid = true;
   bool _isPasswordValid = true;
+
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +228,7 @@ class _FormSignUpState extends State<FormSignUp> {
               child: Center(
                 child: TextField(
                   maxLines: 1,
-                  textInputAction: TextInputAction.newline,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                       errorText: _isEmployeeIdValid
                           ? null
@@ -237,12 +240,12 @@ class _FormSignUpState extends State<FormSignUp> {
                         fontSize: 25,
                       )),
                   onSubmitted: (employeeId) {
-                    setState(() => _isEmployeeIdValid = employeeId.isNotEmpty);
+                    _isEmployeeIdValid = employeeId.isNotEmpty;
                     if (_isEmployeeIdValid) {
                       FocusScope.of(context).requestFocus(FocusNode());
                     }
                   },
-                  controller: widget._model.employeeIdTextEditor,
+                  controller: this.widget._viewModelSignUp.employeeIdTextEditor,
                 ),
               ),
             ),
@@ -268,12 +271,12 @@ class _FormSignUpState extends State<FormSignUp> {
                         fontSize: 25,
                       )),
                   onSubmitted: (name) {
-                    setState(() => _isNameValid = name.isNotEmpty);
+                    _isNameValid = name.isNotEmpty;
                     if (_isEmployeeIdValid && _isNameValid) {
                       FocusScope.of(context).requestFocus(FocusNode());
                     }
                   },
-                  controller: widget._model.nameTextEditor,
+                  controller: this.widget._viewModelSignUp.nameTextEditor,
                 ),
               ),
             ),
@@ -300,20 +303,17 @@ class _FormSignUpState extends State<FormSignUp> {
                         fontSize: 25,
                       )),
                   onSubmitted: (position) {
-                    setState(() {
-                      _isEmployeeIdValid =
-                          widget._model.employeeIdTextEditor.text.isNotEmpty;
-                      _isNameValid =
-                          widget._model.nameTextEditor.text.isNotEmpty;
-                      _isPositionValid = position.isNotEmpty;
-                    });
+                    _isEmployeeIdValid =
+                        this.widget._viewModelSignUp.employeeIdTextEditor.text.isNotEmpty;
+                    _isNameValid = this.widget._viewModelSignUp.nameTextEditor.text.isNotEmpty;
+                    _isPositionValid = position.isNotEmpty;
                     if (_isEmployeeIdValid &&
                         _isNameValid &&
                         _isPositionValid) {
                       FocusScope.of(context).requestFocus(FocusNode());
                     }
                   },
-                  controller: widget._model.positionTextEditor,
+                  controller: this.widget._viewModelSignUp.positionTextEditor,
                 ),
               ),
             ),
@@ -340,15 +340,12 @@ class _FormSignUpState extends State<FormSignUp> {
                         fontSize: 25,
                       )),
                   onSubmitted: (manager) {
-                    setState(() {
-                      _isEmployeeIdValid =
-                          widget._model.employeeIdTextEditor.text.isNotEmpty;
-                      _isNameValid =
-                          widget._model.nameTextEditor.text.isNotEmpty;
-                      _isPositionValid =
-                          widget._model.positionTextEditor.text.isNotEmpty;
-                      _isManagerValid = manager.isNotEmpty;
-                    });
+                    _isEmployeeIdValid =
+                        this.widget._viewModelSignUp.employeeIdTextEditor.text.isNotEmpty;
+                    _isNameValid = this.widget._viewModelSignUp.nameTextEditor.text.isNotEmpty;
+                    _isPositionValid =
+                        this.widget._viewModelSignUp.positionTextEditor.text.isNotEmpty;
+                    _isManagerValid = manager.isNotEmpty;
                     if (_isEmployeeIdValid &&
                         _isNameValid &&
                         _isPositionValid &&
@@ -356,7 +353,7 @@ class _FormSignUpState extends State<FormSignUp> {
                       FocusScope.of(context).requestFocus(FocusNode());
                     }
                   },
-                  controller: widget._model.managerTextEditor,
+                  controller: this.widget._viewModelSignUp.managerTextEditor,
                 ),
               ),
             ),
@@ -379,22 +376,18 @@ class _FormSignUpState extends State<FormSignUp> {
                       border: InputBorder.none,
                       errorText:
                           _isUsernameValid ? null : "Username can't be Empty",
-                      hintText: 'username',
+                      hintText: 'Username',
                       labelStyle: TextStyle(
                         fontSize: 25,
                       )),
                   onSubmitted: (username) {
-                    setState(() {
-                      _isEmployeeIdValid =
-                          widget._model.employeeIdTextEditor.text.isNotEmpty;
-                      _isNameValid =
-                          widget._model.nameTextEditor.text.isNotEmpty;
-                      _isPositionValid =
-                          widget._model.positionTextEditor.text.isNotEmpty;
-                      _isManagerValid =
-                          widget._model.managerTextEditor.text.isNotEmpty;
-                      _isUsernameValid = username.isNotEmpty;
-                    });
+                    _isEmployeeIdValid =
+                        this.widget._viewModelSignUp.employeeIdTextEditor.text.isNotEmpty;
+                    _isNameValid = this.widget._viewModelSignUp.nameTextEditor.text.isNotEmpty;
+                    _isPositionValid =
+                        this.widget._viewModelSignUp.positionTextEditor.text.isNotEmpty;
+                    _isManagerValid = this.widget._viewModelSignUp.managerTextEditor.text.isNotEmpty;
+                    _isUsernameValid = username.isNotEmpty;
                     if (_isEmployeeIdValid &&
                         _isNameValid &&
                         _isPositionValid &&
@@ -403,7 +396,7 @@ class _FormSignUpState extends State<FormSignUp> {
                       FocusScope.of(context).requestFocus(FocusNode());
                     }
                   },
-                  controller: widget._model.usernameTextEditor,
+                  controller: this.widget._viewModelSignUp.usernameTextEditor,
                 ),
               ),
             ),
@@ -430,29 +423,27 @@ class _FormSignUpState extends State<FormSignUp> {
                       labelStyle:
                           TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
                   onSubmitted: (password) {
-                    setState(() {
-                      _isEmployeeIdValid =
-                          widget._model.employeeIdTextEditor.text.isNotEmpty;
-                      _isNameValid =
-                          widget._model.nameTextEditor.text.isNotEmpty;
-                      _isPositionValid =
-                          widget._model.positionTextEditor.text.isNotEmpty;
-                      _isManagerValid =
-                          widget._model.managerTextEditor.text.isNotEmpty;
-                      _isUsernameValid =
-                          widget._model.usernameTextEditor.text.isNotEmpty;
-                      _isPasswordValid = password.isNotEmpty;
-                    });
+                    _isEmployeeIdValid =
+                        this.widget._viewModelSignUp.employeeIdTextEditor.text.isNotEmpty;
+                    _isNameValid = this.widget._viewModelSignUp.nameTextEditor.text.isNotEmpty;
+                    _isPositionValid =
+                        this.widget._viewModelSignUp.positionTextEditor.text.isNotEmpty;
+                    _isManagerValid = this.widget._viewModelSignUp.managerTextEditor.text.isNotEmpty;
+                    _isUsernameValid =
+                        this.widget._viewModelSignUp.usernameTextEditor.text.isNotEmpty;
+                    _isPasswordValid = password.isNotEmpty;
                     if (_isEmployeeIdValid &&
                         _isNameValid &&
                         _isPositionValid &&
                         _isManagerValid &&
                         _isUsernameValid &&
                         _isPasswordValid) {
-                      widget._presenterSignUp.doSignUp();
+                      this.widget._presenterSignUp.doSignUp(
+                          this.widget._viewSignUp, this.widget._viewModelSignUp
+                      );
                     }
                   },
-                  controller: widget._model.passwordTextEditor,
+                  controller: this.widget._viewModelSignUp.passwordTextEditor,
                 ),
               ),
             ),
@@ -468,26 +459,22 @@ class _FormSignUpState extends State<FormSignUp> {
                     borderRadius: BorderRadius.circular(10.0)),
                 color: Colors.deepPurpleAccent,
                 onPressed: () {
-                  setState(() {
-                    _isEmployeeIdValid =
-                        widget._model.employeeIdTextEditor.text.isNotEmpty;
-                    _isNameValid = widget._model.nameTextEditor.text.isNotEmpty;
-                    _isPositionValid =
-                        widget._model.positionTextEditor.text.isNotEmpty;
-                    _isManagerValid =
-                        widget._model.managerTextEditor.text.isNotEmpty;
-                    _isUsernameValid =
-                        widget._model.usernameTextEditor.text.isNotEmpty;
-                    _isPasswordValid =
-                        widget._model.passwordTextEditor.text.isNotEmpty;
-                  });
+                  _isEmployeeIdValid =
+                      this.widget._viewModelSignUp.employeeIdTextEditor.text.isNotEmpty;
+                  _isNameValid = this.widget._viewModelSignUp.nameTextEditor.text.isNotEmpty;
+                  _isPositionValid = this.widget._viewModelSignUp.positionTextEditor.text.isNotEmpty;
+                  _isManagerValid = this.widget._viewModelSignUp.managerTextEditor.text.isNotEmpty;
+                  _isUsernameValid = this.widget._viewModelSignUp.usernameTextEditor.text.isNotEmpty;
+                  _isPasswordValid = this.widget._viewModelSignUp.passwordTextEditor.text.isNotEmpty;
                   if (_isEmployeeIdValid &&
                       _isNameValid &&
                       _isPositionValid &&
                       _isManagerValid &&
                       _isUsernameValid &&
                       _isPasswordValid) {
-                    this.widget._presenterSignUp.doSignUp();
+                    this.widget._presenterSignUp.doSignUp(
+                      this.widget._viewSignUp, this.widget._viewModelSignUp
+                    );
                   }
                 },
                 child: Text(
@@ -502,4 +489,5 @@ class _FormSignUpState extends State<FormSignUp> {
       ),
     );
   }
+
 }

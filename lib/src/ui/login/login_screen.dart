@@ -288,7 +288,7 @@ class _FormLoginState extends State<FormLogin> {
           GestureDetector(
             onTap: () {
               print('tap sign up now');
-              // TODO: do something in here
+              Navigator.pushNamed(context, navigatorRegister);
             },
             child: RichText(
               text: TextSpan(

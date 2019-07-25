@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:built_value/json_object.dart';
-import 'package:rxdart/rxdart.dart';
 
-class ModelSignUp {
+class ViewModelSignUp {
 
   final employeeIdTextEditor = new TextEditingController();
   final nameTextEditor = new TextEditingController();
