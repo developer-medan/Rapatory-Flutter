@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:rapatory_flutter/src/presenter/presenter_signup.dart';
 import 'package:rapatory_flutter/src/ui/signup_screen.dart';
 
-void main() => runApp(MyApp());
+import 'src/app.dart';
 
+/*<<<<<<< master
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -18,3 +19,5 @@ class MyApp extends StatelessWidget {
   }
 }
 
+=======*/
+void main() => runApp(App());

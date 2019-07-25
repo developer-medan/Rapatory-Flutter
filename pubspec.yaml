@@ -13,9 +13,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
-  # A Flutter package that helps implement the BLoC pattern.
-  flutter_bloc: ^0.19.1
-
   # A powerful HTTP client for Dart, which supports Interceptors,
   # Global configuration, FormData, Request Cancellation,
   # File downloading, Timeout etc.
@@ -25,7 +22,6 @@ dependencies:
   # annotation Dart classes.
   json_serializable: ^3.1.0
 
-
   # Vector design and runtime animation for Flutter.
   flare_flutter: ^1.5.4
 
@@ -34,6 +30,24 @@ dependencies:
 
   # Flutter plugin for reading and writing simple key-value pairs.
   shared_preferences: ^0.5.3+4
+
+  # Flutter plugin for getting commonly used locations on the Android & iOS.
+  path_provider: ^1.1.0
+
+  # Flutter plugin for querying information about the application package, such as
+  # CFBundleVersion on iOS or versionCode on Android.
+  package_info: ^0.4.0+5
+
+  # Flutter plugin for integrating Google Maps in iOS and Android
+  google_maps_flutter: ^0.5.19+2
+
+  # Flutter plugin to easily handle realtime location in iOS and Android.
+  # Provides settings for optimizing performance or battery.
+  location: ^2.3.5
+
+  # Flutter plugin for Android and iOS device authentication sensors such
+  # as Fingerprint Reader and Touch ID.
+  local_auth: ^0.5.2+4
 
 dev_dependencies:
   flutter_test:
@@ -49,10 +63,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #  - images/a_dot_burr.jpeg
-  #  - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/material_fingerprint.flr
+    - assets/images/img_sample_photo_profile.jpg
+    - assets/images/img_placeholder.jpg
+    - assets/images/img_illustration_clock_in_out.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
